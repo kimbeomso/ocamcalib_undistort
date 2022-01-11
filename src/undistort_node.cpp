@@ -665,12 +665,6 @@ void Bounding_Box_pub(){
 
     std_msgs::Float32MultiArray msg;
 
-    // xy xy xy xy 400 16
-    // std::cout<< "front_xy pixel : " << front_xy.x << " , " << front_xy.y << std::endl;
-    // std::cout<< "rear_xy  pixel : " << rear_xy.x  << " , " << rear_xy.y << std::endl;
-    // std::cout<< "left_xy  pixel : " << left_xy.x  << " , " << left_xy.y << std::endl;
-    // std::cout<< "right_xy pixel : " << right_xy.x << " , " << right_xy.y << std::endl;
-
     msg.data.push_back((float)(front_xy.x));   msg.data.push_back((float)(front_xy.y));
     msg.data.push_back((float)(rear_xy.x ));   msg.data.push_back((float)(rear_xy.y ));
     msg.data.push_back((float)(left_xy.x ));   msg.data.push_back((float)(left_xy.y ));
@@ -756,17 +750,6 @@ void occupancyGridmapPub() {
         Pub_occupancyGridMap.publish(occupancyGridMap);
 }
 
-int px, py;
-void onMouse(int event, int x, int y, int flags, void* param) {
-	switch (event) {
-	case EVENT_LBUTTONDOWN:	
-        cout<<int(4.0*double(x) / 3.0)<<", "<<int(4.0*double(y)/3.0)<<endl;
-        px = x;
-        py = y;
-		break;
-	}
-}
-
 int main(int argc, char **argv)
 {   
     ros::init(argc, argv, "undistort_node");
@@ -834,106 +817,89 @@ int main(int argc, char **argv)
 //@Yangwoo
 
     m_car.x = m_car.y = m_car.th = 0.0;
-
-    cv::Mat resized_map_img;
-    cv::Mat map_img = cv::imread("/home/beomsoo/Downloads/Robot_navi_final/ROBOT_NAVIGATION.png" ,1);
-    cv::resize( map_img, resized_map_img, cv::Size(1500, 1500), 0, 0, cv::INTER_LINEAR );
-
     while(ros::ok()) { 
+        if(m_flag_both_dir == false){
+            if (m_flagDR) {
+                ros::AsyncSpinner spinner(4+1);
+                spinner.start();
+            }else {
+                ros::AsyncSpinner spinner(4);
+                spinner.start();
+            }
+        }
+        else if(m_flag_both_dir == true){
+            if (m_flagDR) {
+                ros::AsyncSpinner spinner(8+1);
+                spinner.start();
+            }else {
+                ros::AsyncSpinner spinner(8);
+                spinner.start();
+            }
+        }
 
-        cv::imshow("map_img",resized_map_img);
-        cv::circle(resized_map_img, Point(px, py), 3, Scalar(0,0,255), -1);
-	    setMouseCallback("map_img", onMouse, 0);
-        cv::waitKey(1);
-
-        // if(m_flag_both_dir == false){
-        //     if (m_flagDR) {
-        //         ros::AsyncSpinner spinner(4+1);
-        //         spinner.start();
-        //     }else {
-        //         ros::AsyncSpinner spinner(4);
-        //         spinner.start();
-        //     }
-        // }
-        // else if(m_flag_both_dir == true){
-        //     if (m_flagDR) {
-        //         ros::AsyncSpinner spinner(8+1);
-        //         spinner.start();
-        //     }else {
-        //         ros::AsyncSpinner spinner(8);
-        //         spinner.start();
-        //     }
-        // }
-
-        // // if(m_flag_dir == 0){
-        // //     aggregated_side_img = AVM_right + AVM_left;
-        // //     aggregated_side_seg_img = AVM_seg_right + AVM_seg_left;
-        // //     aggregated_seg_img_gray = AVM_seg_right_gray + AVM_seg_left_gray;
-        // // }
-        // // else if(m_flag_dir == 1){
-        // //     aggregated_center_img = AVM_front + AVM_rear;
-        // //     aggregated_center_seg_img = AVM_seg_front + AVM_seg_rear;
-        // // }
-        // if(m_flag_dir == 2){
+        // if(m_flag_dir == 0){
         //     aggregated_side_img = AVM_right + AVM_left;
         //     aggregated_side_seg_img = AVM_seg_right + AVM_seg_left;
-
-        //     aggregated_center_img = AVM_front + AVM_rear;       //  AVM_rear;
-        //     aggregated_center_seg_img = AVM_seg_front + AVM_seg_rear;             // AVM_seg_rear;
-
         //     aggregated_seg_img_gray = AVM_seg_right_gray + AVM_seg_left_gray;
         // }
-
-        // for(int i=0 ;i < Front_detection.size() ; i++)
-        // {
-        //     int label =Front_detection[i].classification;
-        //     rectangle(temp1, Rect( Front_detection[i].x, Front_detection[i].y, Front_detection[i].width, Front_detection[i].height ), 
-        //         Scalar(10*label % 256 , 20*label % 256, 30*label %256), 2, 8, 0);
+        // else if(m_flag_dir == 1){
+        //     aggregated_center_img = AVM_front + AVM_rear;
+        //     aggregated_center_seg_img = AVM_seg_front + AVM_seg_rear;
         // }
-        // for(int i=0 ;i < Left_detection.size() ; i++)
-        // {
-        //     int label =Left_detection[i].classification;
-        //     rectangle(temp2, Rect( Left_detection[i].x, Left_detection[i].y, Left_detection[i].width, Left_detection[i].height ), 
-        //         Scalar(10*label % 256 , 20*label % 256, 30*label %256), 2, 8, 0);
-        // }
-        // for(int i=0 ;i < Right_detection.size() ; i++)
-        // {
-        //     int label =Right_detection[i].classification;
-        //     rectangle(temp3, Rect( Right_detection[i].x, Right_detection[i].y, Right_detection[i].width, Right_detection[i].height ), 
-        //         Scalar(10*label % 256 , 20*label % 256, 30*label %256), 2, 8, 0);
-        // }
-        // for(int i=0 ;i < Rear_detection.size() ; i++)
-        // {
-        //     int label =Rear_detection[i].classification;
-        //     rectangle(temp4, Rect( Rear_detection[i].x, Rear_detection[i].y, Rear_detection[i].width, Rear_detection[i].height ), 
-        //         Scalar(10*label % 256 , 20*label % 256, 30*label %256), 2, 8, 0);
-        // }
-        // // imshow("front",temp1);
-        // // imshow("left",temp2);
-        // // imshow("right",temp3);
-        // // imshow("rear",temp4);
-        // // cv::waitKey(1);
+        if(m_flag_dir == 2){
+            aggregated_side_img = AVM_right + AVM_left;
+            aggregated_side_seg_img = AVM_seg_right + AVM_seg_left;
 
+            aggregated_center_img = AVM_front + AVM_rear;       //  AVM_rear;
+            aggregated_center_seg_img = AVM_seg_front + AVM_seg_rear;             // AVM_seg_rear;
 
-        // // imwrite("/home/dyros-phantom/catkin_ws/src/generalized_hough/include/rear_image.png", aggregated_center_img);
+            aggregated_seg_img_gray = AVM_seg_right_gray + AVM_seg_left_gray;
+        }
 
-        // // if (CNTforIMAGE++ % 3 == 0)
-        // //     imwrite("/home/dyros-phantom/catkin_ws/src/ocamcalib_undistort/image/PhantomAVM_"+to_string(CNTforIMAGE_save++)+".jpg", aggregated_img);
+        for(int i=0 ;i < Front_detection.size() ; i++)
+        {
+            int label =Front_detection[i].classification;
+            rectangle(temp1, Rect( Front_detection[i].x, Front_detection[i].y, Front_detection[i].width, Front_detection[i].height ), 
+                Scalar(10*label % 256 , 20*label % 256, 30*label %256), 2, 8, 0);
+        }
+        for(int i=0 ;i < Left_detection.size() ; i++)
+        {
+            int label =Left_detection[i].classification;
+            rectangle(temp2, Rect( Left_detection[i].x, Left_detection[i].y, Left_detection[i].width, Left_detection[i].height ), 
+                Scalar(10*label % 256 , 20*label % 256, 30*label %256), 2, 8, 0);
+        }
+        for(int i=0 ;i < Right_detection.size() ; i++)
+        {
+            int label =Right_detection[i].classification;
+            rectangle(temp3, Rect( Right_detection[i].x, Right_detection[i].y, Right_detection[i].width, Right_detection[i].height ), 
+                Scalar(10*label % 256 , 20*label % 256, 30*label %256), 2, 8, 0);
+        }
+        for(int i=0 ;i < Rear_detection.size() ; i++)
+        {
+            int label =Rear_detection[i].classification;
+            rectangle(temp4, Rect( Rear_detection[i].x, Rear_detection[i].y, Rear_detection[i].width, Rear_detection[i].height ), 
+                Scalar(10*label % 256 , 20*label % 256, 30*label %256), 2, 8, 0);
+        }
+
+        // imwrite("/home/dyros-phantom/catkin_ws/src/generalized_hough/include/rear_image.png", aggregated_center_img);
+
+        // if (CNTforIMAGE++ % 3 == 0)
+        //     imwrite("/home/dyros-phantom/catkin_ws/src/ocamcalib_undistort/image/PhantomAVM_"+to_string(CNTforIMAGE_save++)+".jpg", aggregated_img);
     
-        // Bounding_Box_pub();
+        Bounding_Box_pub();
 
-        // Pub_AVM_side_img.publish(cv_bridge::CvImage(std_msgs::Header(), "bgr8", aggregated_side_img).toImageMsg());
-        // Pub_AVM_center_img.publish(cv_bridge::CvImage(std_msgs::Header(), "bgr8", aggregated_center_img).toImageMsg());
+        Pub_AVM_side_img.publish(cv_bridge::CvImage(std_msgs::Header(), "bgr8", aggregated_side_img).toImageMsg());
+        Pub_AVM_center_img.publish(cv_bridge::CvImage(std_msgs::Header(), "bgr8", aggregated_center_img).toImageMsg());
 
-        // Pub_AVM_side_seg_img.publish(cv_bridge::CvImage(std_msgs::Header(), "bgr8", aggregated_side_seg_img).toImageMsg());
-        // Pub_AVM_center_seg_img.publish(cv_bridge::CvImage(std_msgs::Header(), "bgr8", aggregated_center_seg_img).toImageMsg());
+        Pub_AVM_side_seg_img.publish(cv_bridge::CvImage(std_msgs::Header(), "bgr8", aggregated_side_seg_img).toImageMsg());
+        Pub_AVM_center_seg_img.publish(cv_bridge::CvImage(std_msgs::Header(), "bgr8", aggregated_center_seg_img).toImageMsg());
 
-        // Pub_AVM_seg_img_gray.publish(cv_bridge::CvImage(std_msgs::Header(), "mono8", aggregated_seg_img_gray).toImageMsg());
+        Pub_AVM_seg_img_gray.publish(cv_bridge::CvImage(std_msgs::Header(), "mono8", aggregated_seg_img_gray).toImageMsg());
 
-        // occupancyGridmapPub();
+        occupancyGridmapPub();
 
-        // if (!m_flagDR)
-        //     AVMpointCloud(aggregated_side_img);
+        if (!m_flagDR)
+            AVMpointCloud(aggregated_side_img);
 
         ros::spinOnce();
         loop_rate.sleep();
